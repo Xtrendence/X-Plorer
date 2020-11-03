@@ -1,5 +1,6 @@
 const localPort = 2225;
 const scriptPath = process.cwd() + "\\server.js";
+const debugMode = true;
 
 const electron = require("electron");
 const localShortcut = require("electron-localshortcut");
@@ -16,15 +17,24 @@ const path = require("path");
 const mime = require("mime-types");
 const glob = require("glob");
 const body_parser = require("body-parser");
+const { ipcRenderer } = require("electron");
 
 app.requestSingleInstanceLock();
 app.name = "X:/Plorer";
 
 app.on("ready", function() {
+	let info = {
+		homePath:app.getPath("home")
+	};
+
 	const { screenWidth, screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
 	let windowWidth = 1000;
 	let windowHeight = 600;
+
+	if(debugMode) {
+		windowWidth += 350;
+	}
 
 	const localWindow = new BrowserWindow({
 		width:windowWidth,
@@ -73,9 +83,41 @@ app.on("ready", function() {
 	
 	localWindow.loadURL("http://127.0.0.1:" + localPort);
 
+	localWindow.webContents.openDevTools();
+
 	localExpress.get("/", (req, res) => {
 		res.render("index");
 	});
+
+	ipcMain.on("get-info", (error, req) => {
+		sendInfo();
+	});
+
+	ipcMain.on("get-home-files", (error) => {
+		sendFiles(info.homePath);
+	});
+
+	ipcMain.on("get-files", (error, req) => {
+		let directory = req.toString().trim();
+		if(directory !== "") {
+			sendFiles(directory);
+		}
+	});
+
+	function sendInfo() {
+		localWindow.webContents.send("get-info", info);
+	}
+
+	function sendFiles(directory) {
+		fs.readdir(path.resolve(directory), (error, files) => {
+			if(error) {
+				console.log(error);
+			}
+			else {
+				localWindow.webContents.send("get-files", files);
+			}
+		});
+	}
 });
 
 String.prototype.replaceAll = function(str1, str2, ignore) {
