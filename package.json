@@ -5,7 +5,7 @@
   "main": "app/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron app/server.js",
+    "start": "nodemon --exec electron app/server.js --ignore main.js",
     "pack": "build --dir",
     "dist": "electron-builder -mwl"
   },
@@ -51,7 +51,6 @@
     }
   },
   "devDependencies": {
-    "electron": "^10.1.5",
     "electron-builder": "^22.8.1"
   },
   "dependencies": {

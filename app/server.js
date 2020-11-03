@@ -20,6 +20,7 @@ const body_parser = require("body-parser");
 const { ipcRenderer } = require("electron");
 
 app.requestSingleInstanceLock();
+app.disableHardwareAcceleration();
 app.name = "X:/Plorer";
 
 app.on("ready", function() {
@@ -83,7 +84,7 @@ app.on("ready", function() {
 	localExpress.use(body_parser.json({ limit:"512mb" }));
 	
 	localWindow.loadURL("http://127.0.0.1:" + localPort);
-
+	localWindow.webContents.setFrameRate(45);
 	localWindow.webContents.openDevTools();
 
 	localExpress.get("/", (req, res) => {
