@@ -1,0 +1,66 @@
+{
+  "name": "X-Plorer",
+  "version": "1.0.0",
+  "description": "A cross-platform file explorer.",
+  "main": "app/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron app/server.js",
+    "pack": "build --dir",
+    "dist": "electron-builder -mwl"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xtrendence/X-Plorer.git"
+  },
+  "author": "Xtrendence",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Xtrendence/X-Plorer/issues"
+  },
+  "homepage": "https://github.com/Xtrendence/X-Plorer#readme",
+  "build": {
+    "appId": "com.xtrendence.x-music",
+    "asar": true,
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "mac": {
+      "category": "public.app-category.music"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": "NSIS",
+      "icon": "build/icon.ico"
+    }
+  },
+  "devDependencies": {
+    "electron": "^10.1.5",
+    "electron-builder": "^22.8.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "ejs": "^3.1.5",
+    "electron-localshortcut": "^3.2.1",
+    "express": "^4.17.1",
+    "glob": "^7.1.6",
+    "ip": "^1.1.5",
+    "mime-types": "^2.1.27"
+  }
+}
