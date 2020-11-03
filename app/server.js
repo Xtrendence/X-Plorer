@@ -29,6 +29,10 @@ app.on("ready", function() {
 		homePath:app.getPath("home")
 	};
 
+	let status = {
+		currentPath:info.homePath
+	};
+
 	const { screenWidth, screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
 	let windowWidth = 1000;
@@ -59,12 +63,12 @@ app.on("ready", function() {
 	if(process.platform === "darwin") {
 		let quit = true;
 
-		localShortcut.register(localWindow,"Command+Q", () => {
+		localShortcut.register(localWindow, "Command+Q", () => {
 			quit = true;
 			app.quit();
 		});
 		
-		localShortcut.register(localWindow,"Command+W", () => {
+		localShortcut.register(localWindow, "Command+W", () => {
 			quit = false;
 			app.hide();
 		});
@@ -106,25 +110,48 @@ app.on("ready", function() {
 		}
 	});
 
+	ipcMain.on("set-window-state", (error, req) => {
+		let state = req.toString();
+		switch(state) {
+			case "closed":
+				(process.platform === "darwin") ? app.hide() : app.quit();
+				break;
+			case "minimized":
+				localWindow.minimize();
+				break;
+			case "maximized":
+				if(process.platform === "darwin") {
+					localWindow.isFullScreen() ? localWindow.setFullScreen(false) : localWindow.setFullScreen(true);
+				}
+				else {
+					localWindow.isMaximized() ? localWindow.restore() : localWindow.maximize();
+				}
+				break;		
+		}
+	});
+
 	function sendInfo() {
 		localWindow.webContents.send("get-info", info);
 	}
 
 	function sendFiles(directory) {
-		fs.readdir(path.resolve(directory), (error, files) => {
-			if(error) {
-				console.log(error);
+		let files = fs.readdirSync(path.resolve(directory));
+		let list = {};
+		files.map(name => {
+			let fullPath = path.join(directory, name);
+			let isDirectory = fs.lstatSync(fullPath).isDirectory();
+
+			let fileInfo = { name:name, isDirectory:isDirectory };
+			if(isDirectory) {
+				fileInfo.fileCount = fs.readdirSync(fullPath).length;
 			}
 			else {
-				let list = {};
-				files.map(name => {
-					let fullPath = path.join(directory, name);
-					let isDirectory = fs.lstatSync(fullPath).isDirectory();
-					list[fullPath] = { name:name, isDirectory:isDirectory };
-				});
-				localWindow.webContents.send("get-files", list);
+				fileInfo.size = fs.lstatSync(fullPath).size;
 			}
+			list[fullPath] = fileInfo;
 		});
+		localWindow.webContents.send("get-files", list);
+		status.currentPath = directory;
 	}
 });
 

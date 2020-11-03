@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	let body = document.getElementsByTagName("body")[0];
 	
+	let buttonClose = document.getElementsByClassName("close-button")[0];
+	let buttonMinimize = document.getElementsByClassName("minimize-button")[0];
+	let buttonMaximize = document.getElementsByClassName("maximize-button")[0];
+
 	let divFilesList = document.getElementsByClassName("files-list")[0];
 
 	if(detectMobile()) {
@@ -18,6 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
 	getInfo();
 	getHomeFiles();
 
+	buttonClose.addEventListener("click", () => {
+		setWindowState("closed");
+	});
+
+	buttonMinimize.addEventListener("click", () => {
+		setWindowState("minimized");
+	});
+
+	buttonMaximize.addEventListener("click", () => {
+		setWindowState("maximized");
+	});
+
 	ipcRenderer.on("get-info", (error, res) => {
 		info = res;
 	});
@@ -29,9 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			let info = res[file];
 			let name = info.name;
 			let icon = info.isDirectory ? svgFolder : svgFile;
+			let subtitle = info.isDirectory ? formatFileCount(info.fileCount) : formatSize(info.size);
 
 			if(name[0] !== ".") {
-				divFilesList.innerHTML += '<div id="' + file + '" data-directory="' + info.isDirectory + '" class="folder-wrapper"><div class="folder-container"><div class="top">' + icon + svgBackground + '</div><div class="bottom"><span class="title">' + info.name + '</span><span class="subtitle"></span></div></div></div>';
+				divFilesList.innerHTML += '<div id="' + file + '" data-directory="' + info.isDirectory + '" class="folder-wrapper"><div class="folder-container"><div class="top">' + icon + svgBackground + '</div><div class="bottom"><span class="title">' + info.name + '</span><span class="subtitle">' + subtitle + '</span></div></div></div>';
 			}
 		});
 		setFileListeners();
@@ -63,11 +80,27 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 		}
 	}
+
+	function setWindowState(state) {
+		ipcRenderer.send("set-window-state", state);
+	}
 });
 
 // Replace all occurrences in a string.
 String.prototype.replaceAll = function(str1, str2, ignore) {
 	return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+}
+
+function formatSize(size) {
+	let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+	return (size / Math.pow(1024, i)).toFixed(2) * 1 + " " + ["Bytes", "KB", "MB", "GB", "TB"][i];
+}
+
+function formatFileCount(count) {
+	if(count === 1) {
+		return count + " File";
+	}
+	return count + " Files";
 }
 
 function validJSON(json) {
