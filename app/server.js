@@ -24,6 +24,7 @@ app.name = "X:/Plorer";
 
 app.on("ready", function() {
 	let info = {
+		port:localPort,
 		homePath:app.getPath("home")
 	};
 
