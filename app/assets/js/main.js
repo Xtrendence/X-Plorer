@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	ipcRenderer.on("get-files", (error, res) => {
+		divFilesList.scrollTo(0, 0);
 		divFilesList.innerHTML = "";
 		let files = Object.keys(res);
 		files.map(file => {

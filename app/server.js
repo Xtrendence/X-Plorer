@@ -140,15 +140,24 @@ app.on("ready", function() {
 		files.map(name => {
 			let fullPath = path.join(directory, name);
 			let isDirectory = fs.lstatSync(fullPath).isDirectory();
+			let valid = true;
 
 			let fileInfo = { name:name, isDirectory:isDirectory };
 			if(isDirectory) {
-				fileInfo.fileCount = fs.readdirSync(fullPath).length;
+				try {
+					fileInfo.fileCount = fs.readdirSync(fullPath).length;
+				}
+				catch {
+					valid = false;
+				}
 			}
 			else {
 				fileInfo.size = fs.lstatSync(fullPath).size;
 			}
-			list[fullPath] = fileInfo;
+			
+			if(valid) {
+				list[fullPath] = fileInfo;
+			}
 		});
 		localWindow.webContents.send("get-files", list);
 		status.currentPath = directory;

@@ -48,7 +48,7 @@ button, input, svg {
 	background:none;
 }
 
-.window-bar {
+.titlebar {
 	position:absolute;
 	width:100%;
 	height:30px;
