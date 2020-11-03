@@ -35,7 +35,7 @@ app.on("ready", function() {
 	let windowHeight = 600;
 
 	if(debugMode) {
-		windowWidth += 350;
+		windowWidth += 260;
 	}
 
 	const localWindow = new BrowserWindow({
@@ -116,7 +116,13 @@ app.on("ready", function() {
 				console.log(error);
 			}
 			else {
-				localWindow.webContents.send("get-files", files);
+				let list = {};
+				files.map(name => {
+					let fullPath = path.join(directory, name);
+					let isDirectory = fs.lstatSync(fullPath).isDirectory();
+					list[fullPath] = { name:name, isDirectory:isDirectory };
+				});
+				localWindow.webContents.send("get-files", list);
 			}
 		});
 	}
