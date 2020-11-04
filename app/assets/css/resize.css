@@ -1,0 +1,51 @@
+@media screen and (min-width:1000px) {
+	.folder-wrapper {
+		width:calc((100% / 7) - 20px - (20px / 7));
+	}
+}
+@media screen and (min-width:1250px) {
+	.folder-wrapper {
+		width:calc((100% / 8) - 20px - (20px / 8));
+	}
+}
+@media screen and (min-width:1500px) {
+	.folder-wrapper {
+		width:calc((100% / 9) - 20px - (20px / 9));
+	}
+}
+@media screen and (min-width:1750px) {
+	.folder-wrapper {
+		width:calc((100% / 10) - 20px - (20px / 10));
+	}
+}
+@media screen and (min-width:2000px) {
+	.folder-wrapper {
+		width:calc((100% / 11) - 20px - (20px / 11));
+	}
+}
+@media screen and (min-width:2250px) {
+	.folder-wrapper {
+		width:calc((100% / 12) - 20px - (20px / 12));
+	}
+}
+
+@media screen and (max-width:850px) {
+	.folder-wrapper {
+		width:calc((100% / 4) - 20px - (20px / 4));
+	}
+}
+@media screen and (max-width:650px) {
+	.folder-wrapper {
+		width:calc((100% / 3) - 20px - (20px / 3));
+	}
+}
+@media screen and (max-width:550px) {
+	.folder-wrapper {
+		width:calc((100% / 2) - 20px - (20px / 2));
+	}
+}
+@media screen and (max-width:350px) {
+	.folder-wrapper {
+		width:calc((100% - 20px - 20px));
+	}
+}

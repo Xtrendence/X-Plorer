@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const { ipcRenderer } = electron;
 
 	let info;
+	let history = [];
 
 	let body = document.getElementsByTagName("body")[0];
 	
