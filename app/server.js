@@ -14,6 +14,7 @@ const ip = require("ip");
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
+const trash = require("trash");
 const mime = require("mime-types");
 const glob = require("glob");
 const body_parser = require("body-parser");
