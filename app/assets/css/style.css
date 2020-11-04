@@ -16,7 +16,7 @@ body {
 button, input, svg {
 	border:none;
 	outline:none;
-	transition:background 0.25s, color 0.25s, fill 0.25s, transform 0.25s;
+	transition:background 0.25s, color 0.25s, fill 0.25s, transform 0.25s, opacity 0.25s;
 }
 .noselect {
 	-webkit-user-select:none;
@@ -68,22 +68,39 @@ button, input, svg {
 	width:18px;
 	height:18px;
 	margin:9px 0 0 9px;
+	padding:0;
 	border-radius:50%;
 	cursor:default;
 	vertical-align:top;
 	-webkit-app-region:no-drag;
+	position:relative;
 }
-.window-buttons button:hover {
-	transform:scale(0.95);
+.window-buttons button:hover svg {
+	opacity:1;
 }
-.close-button {
+.window-buttons button.close-button {
 	background:rgb(61,212,219);
 }
-.minimize-button {
+.window-buttons button.minimize-button {
 	background:rgb(80,125,182);
 }
-.maximize-button {
+.window-buttons button.maximize-button {
 	background:rgb(93,79,156);
+}
+.window-buttons button svg {
+	fill:rgb(255,255,255);
+	width:70%;
+	height:70%;
+	position:absolute;
+	top:2px;
+	left:15%;
+	opacity:0;
+}
+.window-buttons button.maximize-button svg {
+	width:60%;
+	height:60%;
+	top:3.2px;
+	left:calc((100% - 60%) / 2);
 }
 .navigation-buttons {
 	display:inline-block;
@@ -119,7 +136,7 @@ button, input, svg {
 	position:absolute;
 	top:0;
 	left:0;
-	fill:rgb(20,20,20);
+	fill:rgb(30,30,30);
 }
 .navigation-buttons .back-button svg {
 	left:-1px;

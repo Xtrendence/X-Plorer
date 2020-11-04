@@ -46,10 +46,8 @@ app.on("ready", function() {
 	const localWindow = new BrowserWindow({
 		width:windowWidth,
 		minWidth:800,
-		maxWidth:1200,
 		height:windowHeight,
 		minHeight:600,
-		maxHeight:800,
 		resizable:true,
 		frame:false,
 		transparent:false,
