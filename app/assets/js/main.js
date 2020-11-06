@@ -65,21 +65,24 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 
 		let files = Object.keys(res.files);
-
-		if(files.length === 0) {
-			divFilesList.innerHTML = '<div class="files-list-alert noselect"><span>No Files Found</span></div>';
-		}
-
 		files.map(file => {
 			let info = res.files[file];
 			let name = info.name;
 			let icon = info.isDirectory ? svgFolder : svgFile;
 			let subtitle = info.isDirectory ? formatFileCount(info.fileCount) : formatSize(info.size);
 
-			if(name[0] !== ".") {
+			if(name[0] !== "." || res.showHiddenFiles) {
 				divFilesList.innerHTML += '<div id="' + file + '" data-directory="' + info.isDirectory + '" class="folder-wrapper"><div class="folder-container"><div class="top">' + icon + svgBackground + '</div><div class="bottom"><span class="title">' + info.name + '</span><span class="subtitle">' + subtitle + '</span></div></div></div>';
 			}
 		});
+
+		if(files.length === 0) {
+			divFilesList.innerHTML = '<div class="files-list-alert noselect"><span>No Files Found</span></div>';
+		}
+		else {
+			divFilesList.innerHTML += '<div class="files-list-padding"></div>'
+		}
+
 		setFileListeners();
 		enableHistoryButtons();
 	});

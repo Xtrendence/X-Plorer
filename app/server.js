@@ -35,14 +35,15 @@ app.on("ready", function() {
 	};
 
 	let settings = {
-		getFileCount:false,
-		getFileSize:false
+		getFileCount:true,
+		getFileSize:true,
+		showHiddenFiles:false
 	};
 
 	const { screenWidth, screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
 	let windowWidth = 1000;
-	let windowHeight = 600;
+	let windowHeight = 620;
 
 	if(debugMode) {
 		windowWidth += 260;
@@ -174,7 +175,7 @@ app.on("ready", function() {
 				list[fullPath] = fileInfo;
 			}
 		});
-		localWindow.webContents.send("get-files", { directory:directory, files:list, initialLaunch:initialLaunch });
+		localWindow.webContents.send("get-files", { directory:directory, files:list, initialLaunch:initialLaunch, showHiddenFiles:settings.showHiddenFiles });
 		status.currentPath = directory;
 	}
 });
