@@ -24,159 +24,173 @@ app.requestSingleInstanceLock();
 app.disableHardwareAcceleration();
 app.name = "X:/Plorer";
 
+const dataDirectory = path.join(app.getPath("userData"), "X-Plorer/");
+const settingsFile = dataDirectory + "settings.json";
+
+const defaultSettings = {
+	getFileCount:true,
+	getFileSize:true,
+	showHiddenFiles:false
+};
+
+if(!fs.existsSync(dataDirectory)) {
+	fs.mkdirSync(dataDirectory);
+}
+if(!fs.existsSync(settingsFile)) {
+	fs.writeFileSync(settingsFile, JSON.stringify(defaultSettings));
+}
+
 app.on("ready", function() {
-	let info = {
-		port:localPort,
-		homePath:app.getPath("home")
-	};
+	if(fs.existsSync(settingsFile)) {
+		let info = {
+			port:localPort,
+			homePath:app.getPath("home")
+		};
 
-	let status = {
-		currentPath:info.homePath
-	};
+		let status = {
+			currentPath:info.homePath
+		};
 
-	let settings = {
-		getFileCount:true,
-		getFileSize:true,
-		showHiddenFiles:false
-	};
+		let settings = validJSON(fs.readFileSync(settingsFile)) ? JSON.parse(fs.readFileSync(settingsFile)) : defaultSettings;
 
-	const { screenWidth, screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+		const { screenWidth, screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
-	let windowWidth = 1000;
-	let windowHeight = 620;
+		let windowWidth = 1000;
+		let windowHeight = 620;
 
-	if(debugMode) {
-		windowWidth += 260;
-	}
-
-	const localWindow = new BrowserWindow({
-		width:windowWidth,
-		minWidth:800,
-		height:windowHeight,
-		minHeight:600,
-		resizable:true,
-		frame:false,
-		transparent:false,
-		x:80,
-		y:80,
-		webPreferences: {
-			nodeIntegration:true
+		if(debugMode) {
+			windowWidth += 260;
 		}
-	});
 
-	// macOS apps behave differently that Windows when it comes to closing an application.
-	if(process.platform === "darwin") {
-		let quit = true;
-
-		localShortcut.register(localWindow, "Command+Q", () => {
-			quit = true;
-			app.quit();
+		const localWindow = new BrowserWindow({
+			width:windowWidth,
+			minWidth:800,
+			height:windowHeight,
+			minHeight:600,
+			resizable:true,
+			frame:false,
+			transparent:false,
+			x:80,
+			y:80,
+			webPreferences: {
+				nodeIntegration:true
+			}
 		});
-		
-		localShortcut.register(localWindow, "Command+W", () => {
-			quit = false;
-			app.hide();
-		});
 
-		localWindow.on("close", (e) => {
-			if(!quit) {
-				e.preventDefault();
+		// macOS apps behave differently that Windows when it comes to closing an application.
+		if(process.platform === "darwin") {
+			let quit = true;
+
+			localShortcut.register(localWindow, "Command+Q", () => {
 				quit = true;
-			}
-		});
-	}
-
-	localExpress.set("views", path.join(__dirname, "views"));
-	localExpress.set("view engine", "ejs");
-	localExpress.use("/assets", express.static(path.join(__dirname, "assets")));
-	localExpress.use(body_parser.urlencoded({ extended:true }));
-	localExpress.use(body_parser.json({ limit:"512mb" }));
-	
-	localWindow.loadURL("http://127.0.0.1:" + localPort);
-	localWindow.webContents.setFrameRate(45);
-	localWindow.webContents.openDevTools();
-
-	localExpress.get("/", (req, res) => {
-		res.render("index");
-	});
-
-	ipcMain.on("get-info", (error, req) => {
-		sendInfo();
-	});
-
-	ipcMain.on("get-home-files", (error) => {
-		sendFiles(info.homePath, true);
-	});
-
-	ipcMain.on("get-files", (error, req) => {
-		let directory = req;
-		if(!empty(directory)) {
-			sendFiles(directory);
-		}
-	});
-
-	ipcMain.on("set-window-state", (error, req) => {
-		let state = req.toString();
-		switch(state) {
-			case "closed":
-				(process.platform === "darwin") ? app.hide() : app.quit();
-				break;
-			case "minimized":
-				localWindow.minimize();
-				break;
-			case "maximized":
-				if(process.platform === "darwin") {
-					localWindow.isFullScreen() ? localWindow.setFullScreen(false) : localWindow.setFullScreen(true);
-				}
-				else {
-					localWindow.isMaximized() ? localWindow.restore() : localWindow.maximize();
-				}
-				break;		
-		}
-	});
-
-	function sendInfo() {
-		localWindow.webContents.send("get-info", info);
-	}
-
-	function sendFiles(directory, initialLaunch) {
-		let files = fs.readdirSync(path.resolve(directory));
-		let list = {};
-		files.map(name => {
-			let valid = true;
-			let fullPath = path.join(directory, name);
-			let isDirectory = false;
-			try {
-				isDirectory = fs.lstatSync(fullPath).isDirectory();
-			}
-			catch {
-				valid = false;
-			}
-
-			let fileInfo = { name:name, isDirectory:isDirectory };
-			if(settings.getFileCount && isDirectory) {
-				try {
-					fileInfo.fileCount = fs.readdirSync(fullPath).length;
-				}
-				catch {
-					valid = false;
-				}
-			}
-			else if(settings.getFileSize && !isDirectory) {
-				try {
-					fileInfo.size = fs.lstatSync(fullPath).size;
-				}
-				catch {
-					valid = false;
-				}
-			}
+				app.quit();
+			});
 		
-			if(valid) {
-				list[fullPath] = fileInfo;
+			localShortcut.register(localWindow, "Command+W", () => {
+				quit = false;
+				app.hide();
+			});
+
+			localWindow.on("close", (e) => {
+				if(!quit) {
+					e.preventDefault();
+					quit = true;
+				}
+			});
+		}
+
+		localExpress.set("views", path.join(__dirname, "views"));
+		localExpress.set("view engine", "ejs");
+		localExpress.use("/assets", express.static(path.join(__dirname, "assets")));
+		localExpress.use(body_parser.urlencoded({ extended:true }));
+		localExpress.use(body_parser.json({ limit:"512mb" }));
+	
+		localWindow.loadURL("http://127.0.0.1:" + localPort);
+		localWindow.webContents.setFrameRate(45);
+		localWindow.webContents.openDevTools();
+
+		localExpress.get("/", (req, res) => {
+			res.render("index");
+		});
+
+		ipcMain.on("get-info", (error, req) => {
+			sendInfo();
+		});
+
+		ipcMain.on("get-home-files", (error) => {
+			sendFiles(info.homePath, true);
+		});
+
+		ipcMain.on("get-files", (error, req) => {
+			let directory = req;
+			if(!empty(directory)) {
+				sendFiles(directory);
 			}
 		});
-		localWindow.webContents.send("get-files", { directory:directory, files:list, initialLaunch:initialLaunch, showHiddenFiles:settings.showHiddenFiles });
-		status.currentPath = directory;
+
+		ipcMain.on("set-window-state", (error, req) => {
+			let state = req.toString();
+			switch(state) {
+				case "closed":
+					(process.platform === "darwin") ? app.hide() : app.quit();
+					break;
+				case "minimized":
+					localWindow.minimize();
+					break;
+				case "maximized":
+					if(process.platform === "darwin") {
+						localWindow.isFullScreen() ? localWindow.setFullScreen(false) : localWindow.setFullScreen(true);
+					}
+					else {
+						localWindow.isMaximized() ? localWindow.restore() : localWindow.maximize();
+					}
+					break;		
+			}
+		});
+
+		function sendInfo() {
+			localWindow.webContents.send("get-info", info);
+		}
+
+		function sendFiles(directory, initialLaunch) {
+			let files = fs.readdirSync(path.resolve(directory));
+			let list = {};
+			files.map(name => {
+				let valid = true;
+				let fullPath = path.join(directory, name);
+				let isDirectory = false;
+				try {
+					isDirectory = fs.lstatSync(fullPath).isDirectory();
+				}
+				catch {
+					valid = false;
+				}
+
+				let fileInfo = { name:name, isDirectory:isDirectory };
+				if(settings.getFileCount && isDirectory) {
+					try {
+						fileInfo.fileCount = fs.readdirSync(fullPath).length;
+					}
+					catch {
+						valid = false;
+					}
+				}
+				else if(settings.getFileSize && !isDirectory) {
+					try {
+						fileInfo.size = fs.lstatSync(fullPath).size;
+					}
+					catch {
+						valid = false;
+					}
+				}
+		
+				if(valid) {
+					list[fullPath] = fileInfo;
+				}
+			});
+			localWindow.webContents.send("get-files", { directory:directory, files:list, initialLaunch:initialLaunch, showHiddenFiles:settings.showHiddenFiles });
+			status.currentPath = directory;
+		}
 	}
 });
 
