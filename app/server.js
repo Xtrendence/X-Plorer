@@ -34,6 +34,11 @@ app.on("ready", function() {
 		currentPath:info.homePath
 	};
 
+	let settings = {
+		getFileCount:false,
+		getFileSize:false
+	};
+
 	const { screenWidth, screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
 	let windowWidth = 1000;
@@ -148,7 +153,7 @@ app.on("ready", function() {
 			}
 
 			let fileInfo = { name:name, isDirectory:isDirectory };
-			if(isDirectory) {
+			if(settings.getFileCount && isDirectory) {
 				try {
 					fileInfo.fileCount = fs.readdirSync(fullPath).length;
 				}
@@ -156,7 +161,7 @@ app.on("ready", function() {
 					valid = false;
 				}
 			}
-			else {
+			else if(settings.getFileSize && !isDirectory) {
 				try {
 					fileInfo.size = fs.lstatSync(fullPath).size;
 				}

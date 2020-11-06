@@ -150,11 +150,17 @@ String.prototype.replaceAll = function(str1, str2, ignore) {
 }
 
 function formatSize(size) {
+	if(empty(size)) {
+		return "";
+	}
 	let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
 	return (size / Math.pow(1024, i)).toFixed(2) * 1 + " " + ["Bytes", "KB", "MB", "GB", "TB"][i];
 }
 
 function formatFileCount(count) {
+	if(empty(count)) {
+		return "";
+	}
 	if(count === 1) {
 		return count + " File";
 	}
