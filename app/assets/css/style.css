@@ -123,7 +123,7 @@ button, input, svg {
 	background:rgb(100,100,100);
 	pointer-events:none;
 }
-.navigation-buttons button.available {
+.navigation-buttons button.enabled {
 	background:rgb(255,255,255);
 	pointer-events:all;
 }

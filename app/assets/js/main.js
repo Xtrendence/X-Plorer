@@ -3,13 +3,18 @@ document.addEventListener("DOMContentLoaded", () => {
 	const { ipcRenderer } = electron;
 
 	let info;
-	let history = [];
+	let currentPath = "";
+	let historyBack = [];
+	let historyNext = [];
 
 	let body = document.getElementsByTagName("body")[0];
 	
 	let buttonClose = document.getElementsByClassName("close-button")[0];
 	let buttonMinimize = document.getElementsByClassName("minimize-button")[0];
 	let buttonMaximize = document.getElementsByClassName("maximize-button")[0];
+
+	let buttonBack = document.getElementsByClassName("back-button")[0];
+	let buttonForward = document.getElementsByClassName("forward-button")[0];
 
 	let divFilesList = document.getElementsByClassName("files-list")[0];
 
@@ -35,6 +40,18 @@ document.addEventListener("DOMContentLoaded", () => {
 		setWindowState("maximized");
 	});
 
+	buttonBack.addEventListener("click", () => {
+		if(buttonBack.classList.contains("enabled")) {
+			goBack();
+		}
+	});
+
+	buttonForward.addEventListener("click", () => {	
+		if(buttonForward.classList.contains("enabled")) {
+			goForward();
+		}
+	});
+
 	ipcRenderer.on("get-info", (error, res) => {
 		info = res;
 	});
@@ -42,9 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
 	ipcRenderer.on("get-files", (error, res) => {
 		divFilesList.scrollTo(0, 0);
 		divFilesList.innerHTML = "";
-		let files = Object.keys(res);
+
+		if(res.initialLaunch) {
+			currentPath = res.directory;
+		}
+
+		let files = Object.keys(res.files);
 		files.map(file => {
-			let info = res[file];
+			let info = res.files[file];
 			let name = info.name;
 			let icon = info.isDirectory ? svgFolder : svgFile;
 			let subtitle = info.isDirectory ? formatFileCount(info.fileCount) : formatSize(info.size);
@@ -54,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			}
 		});
 		setFileListeners();
+		enableHistoryButtons();
 	});
 
 	function getInfo() {
@@ -68,12 +91,45 @@ document.addEventListener("DOMContentLoaded", () => {
 		ipcRenderer.send("get-files", directory);
 	}
 
+	function goBack() {
+		disableHistoryButtons();
+		let previous = historyBack.pop();
+		historyNext.push(currentPath);
+		currentPath = previous;
+		getFiles(previous);
+	}
+
+	function goForward() {
+		disableHistoryButtons();
+		let next = historyNext.pop();
+		historyBack.push(currentPath);
+		currentPath = next;
+		getFiles(next);
+	}
+
+	function enableHistoryButtons() {
+		if(historyBack.length > 0) {
+			buttonBack.classList.add("enabled");
+		}
+		if(historyNext.length > 0) {
+			buttonForward.classList.add("enabled");
+		}
+	}
+
+	function disableHistoryButtons() {
+		buttonBack.classList.remove("enabled");
+		buttonForward.classList.remove("enabled");
+	}
+
 	function setFileListeners() {
 		let elements = document.getElementsByClassName("folder-wrapper");
 		for(let i = 0; i < elements.length; i++) {
 			let element = elements[i];
 			element.addEventListener("click", () => {
 				if(element.getAttribute("data-directory") === "true") {
+					disableHistoryButtons();
+					historyBack.push(currentPath);
+					currentPath = element.id;
 					getFiles(element.id);
 				}
 				else {
@@ -103,6 +159,13 @@ function formatFileCount(count) {
 		return count + " File";
 	}
 	return count + " Files";
+}
+
+function empty(string) {
+	if(typeof string === "undefined" || string === null || string.toString().trim() === "") {
+		return true;
+	}
+	return false;
 }
 
 function validJSON(json) {

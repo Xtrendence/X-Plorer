@@ -99,12 +99,12 @@ app.on("ready", function() {
 	});
 
 	ipcMain.on("get-home-files", (error) => {
-		sendFiles(info.homePath);
+		sendFiles(info.homePath, true);
 	});
 
 	ipcMain.on("get-files", (error, req) => {
-		let directory = req.toString().trim();
-		if(directory !== "") {
+		let directory = req;
+		if(!empty(directory)) {
 			sendFiles(directory);
 		}
 	});
@@ -133,13 +133,19 @@ app.on("ready", function() {
 		localWindow.webContents.send("get-info", info);
 	}
 
-	function sendFiles(directory) {
+	function sendFiles(directory, initialLaunch) {
 		let files = fs.readdirSync(path.resolve(directory));
 		let list = {};
 		files.map(name => {
-			let fullPath = path.join(directory, name);
-			let isDirectory = fs.lstatSync(fullPath).isDirectory();
 			let valid = true;
+			let fullPath = path.join(directory, name);
+			let isDirectory = false;
+			try {
+				isDirectory = fs.lstatSync(fullPath).isDirectory();
+			}
+			catch {
+				valid = false;
+			}
 
 			let fileInfo = { name:name, isDirectory:isDirectory };
 			if(isDirectory) {
@@ -151,20 +157,32 @@ app.on("ready", function() {
 				}
 			}
 			else {
-				fileInfo.size = fs.lstatSync(fullPath).size;
+				try {
+					fileInfo.size = fs.lstatSync(fullPath).size;
+				}
+				catch {
+					valid = false;
+				}
 			}
-			
+		
 			if(valid) {
 				list[fullPath] = fileInfo;
 			}
 		});
-		localWindow.webContents.send("get-files", list);
+		localWindow.webContents.send("get-files", { directory:directory, files:list, initialLaunch:initialLaunch });
 		status.currentPath = directory;
 	}
 });
 
 String.prototype.replaceAll = function(str1, str2, ignore) {
 	return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+}
+
+function empty(string) {
+	if(typeof string === "undefined" || string === null || string.toString().trim() === "") {
+		return true;
+	}
+	return false;
 }
 
 function validJSON(json) {
