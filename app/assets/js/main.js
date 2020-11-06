@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				if(element.getAttribute("data-directory") === "true") {
 					disableHistoryButtons();
 					historyBack.push(currentPath);
+					historyNext = [];
 					currentPath = element.id;
 					getFiles(element.id);
 				}
