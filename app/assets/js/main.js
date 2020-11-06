@@ -65,6 +65,11 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 
 		let files = Object.keys(res.files);
+
+		if(files.length === 0) {
+			divFilesList.innerHTML = '<div class="files-list-alert noselect"><span>No Files Found</span></div>';
+		}
+
 		files.map(file => {
 			let info = res.files[file];
 			let name = info.name;

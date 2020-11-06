@@ -172,6 +172,29 @@ button, input, svg {
 .files-list::-webkit-scrollbar-track { 
 	background:rgb(40,40,40);
 }
+.files-list-alert {
+	display:block;
+	padding:0;
+	margin:0;
+	height:40px;
+	width:100%;
+	top:calc(50% - 40px / 2);
+	left:0;
+	position:absolute;
+	text-align:center;
+}
+.files-list-alert span {
+	font-size:20px;
+	font-weight:bold;
+	display:inline-block;
+	line-height:40px;
+	padding:0 10px 0 10px;
+	border-radius:10px;
+	background:rgb(61,212,219);
+	background:-moz-linear-gradient(90deg, rgb(61,212,219) 0%, rgb(69,169,199) 25%, rgb(80,125,182) 60%, rgb(93,79,156) 100%);
+	background:-webkit-linear-gradient(90deg, rgb(61,212,219) 0%, rgb(69,169,199) 25%, rgb(80,125,182) 60%, rgb(93,79,156) 100%);
+	background:linear-gradient(90deg, rgb(61,212,219) 0%, rgb(69,169,199) 25%, rgb(80,125,182) 60%, rgb(93,79,156) 100%);
+}
 .folder-wrapper {
 	position:relative;
 	display:inline-block;
