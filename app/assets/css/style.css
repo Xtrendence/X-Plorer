@@ -28,9 +28,9 @@ button, input, svg {
 }
 .hidden {
 	display:none;
-	visibility:hidden;
-	position:absolute;
-	z-index:-1;
+	visibility:hidden !important;
+	position:absolute !important;
+	z-index:-1 !important;
 }
 ::-webkit-scrollbar {
 	display:block;
@@ -218,7 +218,7 @@ button, input, svg {
 	width:100%;
 	height:10px;
 }
-.folder-wrapper {
+.file-wrapper {
 	position:relative;
 	display:inline-block;
 	width:calc((100% / 5) - 20px - (20px / 5));
@@ -231,22 +231,22 @@ button, input, svg {
 	user-select:none;
 	outline:none;
 }
-.folder-wrapper:hover .folder-icon, .folder-wrapper:hover .file-icon {
+.file-wrapper:hover .folder-icon, .file-wrapper:hover .file-icon {
 	transform:scale(0.95);
 }
-.folder-wrapper.opened .folder-background {
+.file-wrapper.opened .file-background {
 	transition:transform 2s;
 	transform:scale(200);
 	position:absolute;
 	z-index:9999;
 }
-.folder-container {
+.file-container {
 	width:128px;
 	height:calc(128px + 2.1em + 5px);
 	display:block;
 	margin:0 auto 0 auto;
 }
-.folder-container .top {
+.file-container .top {
 	display:block;
 	width:128px;
 	height:calc(100% - 2.1em);
@@ -254,7 +254,7 @@ button, input, svg {
 	top:0;
 	left:calc(50% - 128px / 2);
 }
-.folder-container .bottom {
+.file-container .bottom {
 	display:block;
 	width:90%;
 	height:calc(2.1em + 5px);
@@ -280,15 +280,15 @@ button, input, svg {
 	height:calc(40% + 1.9em);
 	stroke-width:3px;
 }
-.folder-background {
+.file-background {
 	position:relative;
-	fill:url("#folder-gradient");
+	fill:url("#file-gradient");
 	width:100%;
 	height:100%;
 	filter:drop-shadow(0px 2px 8px rgba(61,211,219,0.68)); 
 	-webkit-filter:drop-shadow(0px 2px 8px rgba(61,211,219,0.68));
 }
-.folder-wrapper span {
+.file-wrapper span {
 	font-family:"Helvetica Neue", "Lucida Grande", "Arial", "Verdana", "Tahoma", sans-serif;
 	color:rgb(255,255,255);
 	display:block;
@@ -298,12 +298,12 @@ button, input, svg {
 	white-space:nowrap;
 	text-overflow:ellipsis;
 }
-.folder-wrapper .title {
+.file-wrapper .title {
 	font-weight:bold;
 	font-size:1em;
 	margin:0 auto 5px auto;
 }
-.folder-wrapper .subtitle {
+.file-wrapper .subtitle {
 	color:rgb(255,255,255);
 	font-size:0.85em;
 	min-height:1.5em;

@@ -16,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	let buttonBack = document.getElementsByClassName("back-button")[0];
 	let buttonForward = document.getElementsByClassName("forward-button")[0];
 
+	let inputSearch = document.getElementsByClassName("search-input")[0];
+
 	let divFilesList = document.getElementsByClassName("files-list")[0];
 
 	if(detectMobile()) {
@@ -52,6 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	});
 
+	inputSearch.addEventListener("input", () => {
+		let query = inputSearch.value;
+		searchCurrentDirectory(query);
+	});
+
 	ipcRenderer.on("get-info", (error, res) => {
 		info = res;
 	});
@@ -59,6 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	ipcRenderer.on("get-files", (error, res) => {
 		divFilesList.scrollTo(0, 0);
 		divFilesList.innerHTML = "";
+		inputSearch.value = "";
+		searchCurrentDirectory("");
 
 		if(res.initialLaunch) {
 			currentPath = res.directory;
@@ -72,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			let subtitle = info.isDirectory ? formatFileCount(info.fileCount) : formatSize(info.size);
 
 			if(name[0] !== "." || res.showHiddenFiles) {
-				divFilesList.innerHTML += '<div id="' + file + '" data-directory="' + info.isDirectory + '" class="folder-wrapper"><div class="folder-container"><div class="top">' + icon + svgBackground + '</div><div class="bottom"><span class="title">' + info.name + '</span><span class="subtitle">' + subtitle + '</span></div></div></div>';
+				divFilesList.innerHTML += '<div id="' + file + '" data-directory="' + info.isDirectory + '" class="file-wrapper"><div class="file-container"><div class="top">' + icon + svgBackground + '</div><div class="bottom"><span class="title">' + info.name + '</span><span class="subtitle">' + subtitle + '</span></div></div></div>';
 			}
 		});
 
@@ -97,6 +106,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	function getFiles(directory) {
 		ipcRenderer.send("get-files", directory);
+	}
+
+	function searchCurrentDirectory(query) {
+		let files = document.getElementsByClassName("file-wrapper");
+		for(let i = 0; i < files.length; i++) {
+			if(empty(query)) {
+				files[i].classList.remove("hidden");
+			}
+			else {
+				let name = files[i].getElementsByClassName("title")[0].textContent.toLowerCase();
+				if(!name.includes(query)) {
+					files[i].classList.add("hidden");
+				}
+				else {
+					files[i].classList.remove("hidden");
+				}
+			}
+		}
 	}
 
 	function goBack() {
@@ -130,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	}
 
 	function setFileListeners() {
-		let elements = document.getElementsByClassName("folder-wrapper");
+		let elements = document.getElementsByClassName("file-wrapper");
 		for(let i = 0; i < elements.length; i++) {
 			let element = elements[i];
 			element.addEventListener("click", () => {
