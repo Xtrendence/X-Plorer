@@ -144,6 +144,24 @@ button, input, svg {
 .navigation-buttons .forward-button svg {
 	left:1px;
 }
+.search-wrapper {
+	position:absolute;
+	top:0;
+	right:10px;
+	height:100%;
+	-webkit-app-region:no-drag;
+}
+.search-wrapper input {
+	height:14px;
+	padding:4px;
+	border-radius:4px;
+	margin-top:7px;
+	display:block;
+	font-size:14px;
+	font-family:var(--font-family);
+	color:rgb(255,255,255);
+	background:rgb(50,50,50);
+}
 
 .files-list {
 	font-size:0;
