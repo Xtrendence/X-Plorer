@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	let historyNext = [];
 
 	let body = document.getElementsByTagName("body")[0];
+	let head = document.getElementsByTagName("head")[0];
 	
 	let buttonClose = document.getElementsByClassName("close-button")[0];
 	let buttonMinimize = document.getElementsByClassName("minimize-button")[0];
@@ -61,6 +62,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	ipcRenderer.on("get-info", (error, res) => {
 		info = res;
+
+		if(head.getElementsByTagName("style").length > 0) {
+			head.getElementsByTagName("style")[0].remove();
+		}
+
+		if(!info.renderGlow) {
+			let style = document.createElement("style");
+			style.textContent = ".file-background { filter:none; -webkit-filter:none; }";
+			head.appendChild(style);
+		}
 	});
 
 	ipcRenderer.on("get-files", (error, res) => {

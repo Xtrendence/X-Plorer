@@ -44,7 +44,8 @@ app.on("ready", function() {
 	if(fs.existsSync(settingsFile)) {
 		let info = {
 			port:localPort,
-			homePath:app.getPath("home")
+			homePath:app.getPath("home"),
+			renderGlow:false
 		};
 
 		let status = {
@@ -77,6 +78,16 @@ app.on("ready", function() {
 			}
 		});
 
+		// app.on("browser-window-focus", () => {
+		// 	globalShortcut.register("CommandOrControl+R", () => { });
+		// 	globalShortcut.register("F5", () => { });
+		// });
+
+		// app.on("browser-window-blur", () => {
+		// 	globalShortcut.unregister("CommandOrControl+R");
+		// 	globalShortcut.unregister("F5");
+		// });
+
 		// macOS apps behave differently that Windows when it comes to closing an application.
 		if(process.platform === "darwin") {
 			let quit = true;
@@ -89,6 +100,10 @@ app.on("ready", function() {
 			localShortcut.register(localWindow, "Command+W", () => {
 				quit = false;
 				app.hide();
+			});
+
+			localShortcut.register(localWindow, "Command+R", () => {
+				// Custom refresh procedure.
 			});
 
 			localWindow.on("close", (e) => {
